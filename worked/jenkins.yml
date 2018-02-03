@@ -19,61 +19,7 @@
          url_password: admin
         # update_url: https://updates.jenkins-ci.org
          url: http://localhost:8080
-      with_items: 
-           - ant
-           - git 
-           - ansible
-           - ace-editor
-           - apache-httpcomponents-client-4-api
-           - authentication-tokens
-           - bouncycastle-api
-           - branch-api
-           - build-timeout
-           - cloudbees-folder
-           - antisamy-markup-formatter
-           - command-launcher
-           - credentials
-           - credentials-binding
-           - display-url-api
-           - docker-commons
-           - docker-workflow
-           - durable-task
-           - email-ext
-           - git-client
-           - github
-           - github-api
-           - github-branch-source
-           - git-server
-           - gradle
-           - handlebars
-           - jackson2-api
-           - jquery-detached
-           - jsch
-           - junit
-           - ldap
-           - mailer
-           - mapdb-api
-           - credentials
-           - credentials-binding
-           - display-url-api
-           - docker-commons
-           - docker-workflow
-           - durable-task
-           - email-ext
-           - git-client
-           - github
-           - github-api
-           - github-branch-source
-           - git-server
-           - gradle
-           - handlebars
-           - jackson2-api
-           - jquery-detached
-           - jsch
-           - junit
-           - ldap
-           - mailer
-           - mapdb-api
+      with_items: "{{ my_jenkins_plugins }}"
  
 
     - name: jobs
