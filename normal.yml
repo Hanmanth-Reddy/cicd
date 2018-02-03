@@ -1,11 +1,11 @@
 ---
 -  hosts: localhost
    become: yes
-   become_method: sudo 
+   become_method: sudo
    vars_files:
-     - vars_main.yml   
+     - vars_main.yml
    tasks:
-    - name: install  
+    - name: install
       jenkins_plugin:
           name: "{{item.key}}"
           state: "enabled"
@@ -14,13 +14,13 @@
 
 ###### Creating jobs though jenkins_job module, In this way authentication is required ############
 
-    - name: installing dependencies
+    - name: Ensure jenkins_plugin dependencies should install
       yum:
         name: "{{item}}"
         state: present
       with_items:
          - python-jenkins
-         - lxml
+         - python-lxml
 
 
     - name: jobs
