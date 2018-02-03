@@ -1,0 +1,113 @@
+---
+- hosts: localhost
+  become: yes
+  become_method: sudo
+  vars:
+    my_jenkins_params:
+       url_username: admin
+      # url_password: p4ssw0rd
+      # url: http://localhost:8080
+  vars_files:
+       - vars_main.yml
+  tasks:
+   
+    - name: install git plugin
+      jenkins_plugin:
+         name: "{{item}}"
+         state: latest
+         params: "{{ my_jenkins_params }}"
+         url_password: admin
+        # update_url: https://updates.jenkins-ci.org
+         url: http://localhost:8080
+      with_items: 
+           - ant
+           - git 
+           - ansible
+           - ace-editor
+           - apache-httpcomponents-client-4-api
+           - authentication-tokens
+           - bouncycastle-api
+           - branch-api
+           - build-timeout
+           - cloudbees-folder
+           - antisamy-markup-formatter
+           - command-launcher
+           - credentials
+           - credentials-binding
+           - display-url-api
+           - docker-commons
+           - docker-workflow
+           - durable-task
+           - email-ext
+           - git-client
+           - github
+           - github-api
+           - github-branch-source
+           - git-server
+           - gradle
+           - handlebars
+           - jackson2-api
+           - jquery-detached
+           - jsch
+           - junit
+           - ldap
+           - mailer
+           - mapdb-api
+           - credentials
+           - credentials-binding
+           - display-url-api
+           - docker-commons
+           - docker-workflow
+           - durable-task
+           - email-ext
+           - git-client
+           - github
+           - github-api
+           - github-branch-source
+           - git-server
+           - gradle
+           - handlebars
+           - jackson2-api
+           - jquery-detached
+           - jsch
+           - junit
+           - ldap
+           - mailer
+           - mapdb-api
+ 
+
+    - name: jobs
+      jenkins_job:
+          name: sample-job1
+          state: present
+          config: "{{ lookup('file', 'templates/sample-job1_config.xml') }}"
+        # enabled: False  (mutually exclusive with config attribute)
+          user: admin
+          password: admin
+        # token: 2a0c4f92bbc6853bd1b27b77438854cd
+          url: http://localhost:8080
+       
+       
+    - name: jobs
+      jenkins_job:
+         name: sample-job2
+         state: present
+         config: "{{ lookup('file', 'templates/sample-job2_config.xml') }}"
+        # enabled: False  (mutually exclusive with config attribute)
+         user: admin
+         password: admin
+         url: http://localhost:8080
+        
+ 
+            
+           
+           
+              
+
+#c9a911cbf10f9dde136a4b71e0c7fbb1
+
+
+
+
+
+
