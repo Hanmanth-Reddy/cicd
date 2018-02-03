@@ -1,0 +1,29 @@
+---
+- name: Ensure Jenkins updates folder created and have proper permissions.
+  file:
+    path: /var/lib/jenkins/updates
+    owner: jenkins
+    group: jenkins
+    mode: 0755
+    state: directory
+    recurse: yes
+
+- name: Update Jenkins plugin data.
+  shell: >
+    curl -L https://updates.jenkins-ci.org/update-center.json | sed '1d;$d' > /var/lib/jenkins/updates/default.json
+    creates=/var/lib/jenkins/updates/default.json
+
+- name: create jenkins update directory
+  file:
+    path: "{{jenkins_home}}/updates"
+    owner: jenkins
+    group: jenkins
+    mode: 0755
+    state: directory
+    recurse: yes
+
+- name: install plugins
+  command: >
+        creates={{ jenkins_home }}/plugins/{{ item }}.jpi
+        java -jar {{ jenkins_home }}/jenkins-cli.jar -s http://localhost:{{jenkins_port}}/  install-plugin {{ item }}
+  with_items: "{{ my_jenkins_plugins }}"

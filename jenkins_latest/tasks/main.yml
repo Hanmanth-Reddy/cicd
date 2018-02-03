@@ -1,0 +1,59 @@
+---
+
+
+############## Installing jenkins ########################
+
+- name: Installing jenkins yum repo
+  get_url:
+     url: https://pkg.jenkins.io/redhat/jenkins.repo
+     dest: /etc/yum.repos.d/
+     tags: install
+
+- name: Importing gpg key
+  rpm_key:
+     state: present
+     key: https://pkg.jenkins.io/redhat/jenkins.io.key
+     validate_certs: no
+     tags: install
+
+- name: installing jenkins server
+  yum:
+    name: jenkins-{{jenkins_version_redhat}}
+    state: present
+    tags: install   
+
+    
+############ Installing jenkins pluigns ###########################
+- name: Make sure the plugin is always up-to-date
+  jenkins_plugin:
+     name: token-macro
+    state: latest
+
+
+
+############### Installing sample jenkins jobs ###################
+
+- name: installing required packages for jenkins module
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+       - python-jenkins
+       - lxml
+
+- name: jobs
+  jenkins_job:
+      name: sample-job1
+      state: present
+      config: "{{ lookup('file', 'templates/sample-job1_config.xml') }}"
+    # enabled: False  (mutually exclusive with config attribute)
+      user: admin
+      token: c9a911cbf10f9dde136a4b71e0c7fbb1
+      url: http://localhost:8080
+
+
+
+
+
+
+

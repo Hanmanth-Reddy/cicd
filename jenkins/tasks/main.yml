@@ -1,0 +1,57 @@
+---
+
+- name: Ensure gpg key is imported for jenkins package repo
+  rpm_key:
+    state: present
+    key: https://pkg.jenkins.io/redhat/jenkins.io.key
+    validate_certs: no
+
+- name: Ensure jenkins yum repo is dowloaded
+  yum_repository:
+      name: jenkins
+      description: jenkins repo
+      baseurl: https://pkg.jenkins.io/redhat/jenkins.repo
+      reposdir: /etc/yum.repos.d
+      file: jenkins.repo
+      state: present
+      enabled: yes
+
+
+- name: Ensure jenkins is installed
+  yum:
+     name: jenkins-{{jenkins_version_redhat}}
+     state: present
+
+
+- name: Ensure Jenkins setup wizard is skipped
+  lineinfile:
+        dest=/etc/sysconfig/jenkins
+        regexp=^JENKINS_JAVA_OPTIONS=
+        line=JENKINS_JAVA_OPTIONS="{{jenkins_java_options}}"
+  notify: restart jenkins
+
+
+- name: Ensure Jenkins service is running
+  service: name=jenkins status=started enabled=yes
+
+
+- name: Ensure jenkins server is up and running
+  wait_for:
+      host: localhost
+      port: "{{jenkins_port}}"
+      delay: 10
+
+- name: Ensure jenkins-cli.jar is dowloaded into jenkins home directory
+  get_url:
+     src: http://localhost:8080/jnlpJars/jenkins-cli.jar
+     dest: "{{jenkins_home}}"
+  register: result
+  until: "'OK' in result.msg or 'file already exists' in result.msg"
+  retries: 10
+  delay: 10
+
+- include_tasks: plugins.yml
+
+- include_tasks: sample-jobs.yml
+
+#- include_tasks: sample-users.yuml
