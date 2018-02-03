@@ -1,0 +1,35 @@
+---
+-  hosts: localhost
+   become: yes
+   become_method: sudo 
+   vars_files:
+     - vars_main.yml   
+   tasks:
+    - name: install  
+      jenkins_plugin:
+          name: "{{item.key}}"
+          state: "enabled"
+          with_dict: "{{ my_jenkins_plugins }}"
+
+
+###### Creating jobs though jenkins_job module, In this way authentication is required ############
+
+    - name: installing dependencies
+      yum:
+        name: "{{item}}"
+        state: present
+      with_items:
+         - python-jenkins
+         - lxml
+
+
+    - name: jobs
+      jenkins_job:
+           name: sample-job1
+           token: c60f36c93bad82f82f8b612ba78fe41e
+           state: present
+           config: "{{ lookup('./', 'sample-job1_config.xml') }}"
+           user: admin
+           url: http://localhost:8080
+
+###c60f36c93bad82f82f8b612ba78fe41e
