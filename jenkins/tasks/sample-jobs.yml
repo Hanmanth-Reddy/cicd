@@ -1,7 +1,7 @@
 ---
 - name: Create new jobs or update existing jobs if there is any change
-  template:
-    scr: "{{item}}"
+  copy:
+    scr: "files/{{item}}"
     dest: "/tmp/{{item}}"
   with_items:
      - sample-job1_config.xml

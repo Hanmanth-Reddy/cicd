@@ -8,12 +8,11 @@
      url_password: admin
      updates_url: https://updates.jenkins-ci.org
      url: http://localhost:8080
+     with_dependencies: yes
   with_items: "{{ my_jenkins_plugins }}"
 
 
-############### Installing sample jenkins jobs ###################
-
-- name: Ensure installing required packages for jenkins module
+- name: Ensure jenkins_jobs module dpendencies are installed
   yum:
     name: "{{item}}"
     state: present
@@ -21,9 +20,9 @@
        - python-jenkins
        - python-lxml
 
-- name: jobs
+- name: Ensure Sampljobs are created
   jenkins_job:
-     name: sample-job2
+     name: sample-job1
      state: present
      config: "{{ lookup('file', 'templates/sample-job1_config.xml') }}"
     # enabled: False  (mutually exclusive with config attribute)
@@ -31,7 +30,7 @@
      password: admin
      url: http://localhost:8080
 
-- name: jobs
+- name: Ensure Sampljobs are created
   jenkins_job:
      name: sample-job2
      state: present

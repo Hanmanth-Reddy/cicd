@@ -1,0 +1,40 @@
+---
+# tasks file for apache
+- name: Ensure libselinux-python is installed
+  yum:
+    name: libselinux-python
+    state: present
+
+- name: Ensure default mod wsgi is not installed
+  yum:
+    name: mod_wsgi
+    state: absent
+
+- name: Ensure httpd packages are installed
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - mod_ssl
+    - wsgi_httpd
+    - httpd-tools
+    - httpd
+
+- name: Ensure httpd ssl is configured
+  template:
+    src: "templates/{{apache_ssl_config}}.conf.j2"
+    dest: /etc/httpd/conf.d/ssl.conf
+    owner: root
+    group: root
+    mode: 0744
+  notify:
+    - restart apache
+  when: apache_ssl_config is defined
+  tags:
+    - config
+
+- name: Ensure apache is enabled
+  service:
+    name: httpd
+    state: started
+    enabled: yes

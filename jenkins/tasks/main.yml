@@ -1,22 +1,5 @@
 ---
 
-- name: Ensure gpg key is imported for jenkins package repo
-  rpm_key:
-    state: present
-    key: https://pkg.jenkins.io/redhat/jenkins.io.key
-    validate_certs: no
-
-- name: Ensure jenkins yum repo is dowloaded
-  yum_repository:
-      name: jenkins
-      description: jenkins repo
-      baseurl: https://pkg.jenkins.io/redhat/jenkins.repo
-      reposdir: /etc/yum.repos.d
-      file: jenkins.repo
-      state: present
-      enabled: yes
-
-
 - name: Ensure jenkins is installed
   yum:
      name: jenkins-{{jenkins_version_redhat}}

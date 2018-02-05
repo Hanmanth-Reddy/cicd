@@ -1,0 +1,49 @@
+---
+
+- name: Deploying Elasticsearch Repo
+  hosts: local_log_cluster
+  become: yes
+  become_method: sudo
+  tasks:
+    - name: Create repository configuration
+      yum_repository:
+        name: elasticsearch
+        description: ES Repository
+        baseurl: https://artifacts.elastic.co/packages/5.x/yum
+        gpgcheck: yes
+        gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+        enabled: yes
+        state: absent
+
+- name: Deploying Elasticsearch Stack on Local Houston Towers
+  hosts: local_log_cluster
+  become: yes
+  become_method: sudo
+  vars_files:
+    - vars/all_local_htower.yml
+    - vars/all_local_logcluster.yml
+    - vars/apache_logcluster.yml
+  roles:
+    - apache
+    - redis
+    - log_engine
+    - log_processor
+    - sensu_client
+
+- name: Deploying Elasicsearch mapping on Local Houston Towers
+  hosts: local_log_cluster
+  become: yes
+  become_method: sudo
+  vars_files:
+    - vars/all_local_logcluster.yml
+  roles:
+    - log_mapping
+
+- name: Deploying Elasticsearch Index Curator on Local Houston Towers
+  hosts: local_log_curator
+  become: yes
+  become_method: sudo
+  vars_files:
+    - vars/all_local_logcluster.yml
+  roles:
+    - log_mgmt
