@@ -10,9 +10,10 @@
      url: http://localhost:8080
      with_dependencies: yes
   with_items: "{{ my_jenkins_plugins }}"
+  tags:
+    - plugins
 
-
-- name: Ensure jenkins_jobs module dpendencies are installed
+- name: Ensure jenkins_jobs module dependencies are installed
   yum:
     name: "{{item}}"
     state: present
@@ -20,7 +21,7 @@
        - python-jenkins
        - python-lxml
 
-- name: Ensure Sampljobs are created
+- name: Ensure Sample-jobs are created
   jenkins_job:
      name: sample-job1
      state: present

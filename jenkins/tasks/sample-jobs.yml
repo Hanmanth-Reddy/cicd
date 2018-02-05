@@ -1,6 +1,6 @@
 ---
 - name: Create new jobs or update existing jobs if there is any change
-  template:
+  copy:
     src:  files/{{item}}
     dest: /tmp/
     force: yes
@@ -8,6 +8,6 @@
      - sample-job1_config.xml
      - sample-job2_config.xml
      - jenkins-jobs.sh
-  
+
 
 - shell: "sh /tmp/jenkins-jobs.sh sample-job1 sample-job2"

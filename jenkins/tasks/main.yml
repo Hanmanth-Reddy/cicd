@@ -27,14 +27,18 @@
 - name: Ensure jenkins-cli.jar is dowloaded into jenkins home directory
   get_url:
      src: http://localhost:8080/jnlpJars/jenkins-cli.jar
-     dest: "{{jenkins_home}}/jenkins-cli.jar"
+     dest: {{jenkins_home}}/jenkins-cli.jar
   register: result
   until: "'OK' in result.msg or 'file already exists' in result.msg"
   retries: 10
   delay: 10
 
 - include_tasks: plugins.yml
+  tags:
+     - plugins
 
 - include_tasks: sample-jobs.yml
+  tags:
+    - jobs
 
 #- include_tasks: sample-users.yuml
