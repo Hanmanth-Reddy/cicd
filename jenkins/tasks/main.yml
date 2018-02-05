@@ -26,7 +26,7 @@
 
 - name: Ensure jenkins-cli.jar is dowloaded into jenkins home directory
   get_url:
-     src: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
+     url: "http://localhost:8080/jnlpJars/jenkins-cli.jar"
      dest: "{{jenkins_home}}/jenkins-cli.jar"
   register: result
   until: "'OK' in result.msg or 'file already exists' in result.msg"
