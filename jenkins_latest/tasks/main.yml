@@ -5,6 +5,8 @@
      state: present
   notify:
     - jenkins started
+  tags:
+    - install
 
 - name: Ensure required plugins are installed
   jenkins_plugin:
