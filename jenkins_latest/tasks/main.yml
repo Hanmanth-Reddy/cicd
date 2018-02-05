@@ -1,4 +1,10 @@
 ---
+- name: Ensure jenkins is installed
+  yum:
+     name: jenkins-{{jenkins_version_redhat}}
+     state: present
+  notify:
+    - jenkins started
 
 - name: Ensure required plugins are installed
   jenkins_plugin:

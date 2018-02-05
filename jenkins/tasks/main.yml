@@ -4,6 +4,10 @@
   yum:
      name: jenkins-{{jenkins_version_redhat}}
      state: present
+  notify:
+    - jenkins started
+  tags:
+    - install
 
 
 - name: Ensure Jenkins setup wizard is skipped
@@ -12,11 +16,6 @@
         regexp=^JENKINS_JAVA_OPTIONS=
         line=JENKINS_JAVA_OPTIONS="{{jenkins_java_options}}"
   notify: restart jenkins
-
-
-- name: Ensure Jenkins service is running
-  service: name=jenkins state=started enabled=yes
-
 
 - name: Ensure jenkins server is up and running
   wait_for:
