@@ -10,6 +10,8 @@
      url: http://localhost:8080
      with_dependencies: yes
   with_items: "{{ my_jenkins_plugins }}"
+  notify:
+    - restart jenkins
   tags:
     - plugins
 
@@ -31,15 +33,5 @@
      password: admin
      url: http://localhost:8080
    with_items: "{{my_jenkins_jobs}}"
-
-
-
-- name: Ensure Sampljobs are created
-  jenkins_job:
-     name: sample-job2
-     state: present
-     config: "{{ lookup('file', 'templates/sample-job2_config.xml') }}"
-    # enabled: False  (mutually exclusive with config attribute)
-     user: admin
-     password: admin
-     url: http://localhost:8080
+   tags:
+     - jobs
