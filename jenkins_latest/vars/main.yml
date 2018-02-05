@@ -1,4 +1,6 @@
 ---
+  my_jenkins_params:
+    url_username: admin
   my_jenkins_plugins:
           -  ant
           -  git

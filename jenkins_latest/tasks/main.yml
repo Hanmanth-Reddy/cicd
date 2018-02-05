@@ -1,43 +1,19 @@
 ---
 
-############## Installing jenkins ########################
-
-- name: Ensure jenkins yum repo installed
-  get_url:
-     url: https://pkg.jenkins.io/redhat/jenkins.repo
-     dest: /etc/yum.repos.d/
-     tags: install
-
-- name: Ensure gpg key imported.
-  rpm_key:
-     state: present
-     key: https://pkg.jenkins.io/redhat/jenkins.io.key
-     validate_certs: no
-     tags: install
-
-- name: Ensure jenkins server installed
-  yum:
-    name: jenkins-{{jenkins_version_redhat}}
-    state: present
-    tags: install
-
-
-############ Installing jenkins pluigns ###########################
-
 - name: Ensure required plugins are installed
   jenkins_plugin:
      name: "{{item}}"
      state: latest
      params: "{{ my_jenkins_params }}"
      url_password: admin
-    # update_url: https://updates.jenkins-ci.org
+     updates_url: https://updates.jenkins-ci.org
      url: http://localhost:8080
   with_items: "{{ my_jenkins_plugins }}"
-  notify: restart jenkins
+
 
 ############### Installing sample jenkins jobs ###################
 
-- name: installing required packages for jenkins module
+- name: Ensure installing required packages for jenkins module
   yum:
     name: "{{item}}"
     state: present
@@ -45,25 +21,22 @@
        - python-jenkins
        - python-lxml
 
-  - name: Ensure required Jenkins jobs are installing
-    jenkins_job:
-        name: "{{item}}"
-        state: present
-        config: "{{ lookup('file', 'templates/"{{item}}".xml') }}"
-      # enabled: False  (mutually exclusive with config attribute)
-        user: admin
-        password: admin
-      # token: 2a0c4f92bbc6853bd1b27b77438854cd
-        url: http://localhost:8080
+- name: jobs
+  jenkins_job:
+     name: sample-job2
+     state: present
+     config: "{{ lookup('file', 'templates/sample-job1_config.xml') }}"
+    # enabled: False  (mutually exclusive with config attribute)
+     user: admin
+     password: admin
+     url: http://localhost:8080
 
-  #
-  # - name: jobs
-  #   jenkins_job:
-  #      name: sample-job2
-  #      state: present
-  #      config: "{{ lookup('file', 'templates/sample-job2_config.xml') }}"
-  #     # enabled: False  (mutually exclusive with config attribute)
-  #      user: admin
-  #      password: admin
-  #      url: http://localhost:8080
-  #
+- name: jobs
+  jenkins_job:
+     name: sample-job2
+     state: present
+     config: "{{ lookup('file', 'templates/sample-job2_config.xml') }}"
+    # enabled: False  (mutually exclusive with config attribute)
+     user: admin
+     password: admin
+     url: http://localhost:8080
