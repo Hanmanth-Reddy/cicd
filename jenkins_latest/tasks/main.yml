@@ -32,6 +32,6 @@
      user: admin
      password: admin
      url: http://localhost:8080
-   with_items: "{{my_jenkins_jobs}}"
-   tags:
+  with_items: "{{my_jenkins_jobs}}"
+  tags:
      - jobs
