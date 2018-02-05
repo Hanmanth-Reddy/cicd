@@ -15,6 +15,12 @@
   tags:
     - plugins
 
+- name: Ensure jenkins server is up and running
+  wait_for:
+      host: localhost
+      port: "{{jenkins_port}}"
+      delay: 10
+
 - name: Ensure jenkins_jobs module dependencies are installed
   yum:
     name: "{{item}}"
