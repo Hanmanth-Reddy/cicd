@@ -79,3 +79,7 @@
         -  workflow-step-api
         -  workflow-support
         -  ws-cleanup
+        -  gerrit-trigger
+        -  gerrit-verify-status-reporter
+        -  sonar-gerrit
+
