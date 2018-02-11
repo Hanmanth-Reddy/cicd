@@ -1,0 +1,276 @@
+Redis
+********
+sudo rpm -Uvh http://dl.fedoraproject.org/pub/epel/6/i386/epel-release-6-8.noarch.rpm
+sudo yum install redis
+
+sudo service redis start
+sudo service redis stop
+
+sudo service redis-sentinel start
+sudo service redis-sentinel stop
+
+sudo /sbin/chkconfig redis on
+sudo /sbin/chkconfig redis off
+sudo /sbin/chkconfig redis-sentinel on
+sudo /sbin/chkconfig redis-sentinel off
+
+redis-cli ping
+
+/etc/redis/redis.conf
+
+
+/etc/default/redis
+ULIMIT=65536
+
+
+/etc/sensu/conf.d/redis.json:
+
+{
+  "redis": {
+    "host": "127.0.0.1",
+    "port": 6379
+  }
+}
+
+
+/etc/sensu/conf.d/redis.json 	
+
+{
+  "redis": {
+    "host": "10.0.1.5",
+    "port": 6379,
+    "auto_reconnect": true
+  }
+}
+
+
+
+Using Redis as the Sensu Transport
+************************************
+/etc/sensu/conf.d/transport.json:
+
+{
+  "transport": {
+    "name": "redis",
+    "reconnect_on_error": true
+  }
+}
+
+
+RabbitMQ
+*************
+
+sudo yum install epel-release
+
+sudo wget https://packages.erlang-solutions.com/erlang-solutions-1.0-1.noarch.rpm
+sudo rpm -Uvh erlang-solutions-1.0-1.noarch.rpm
+
+sudo yum install -y erlang-19.3
+
+
+sudo yum install -y socat
+
+sudo rpm --import https://www.rabbitmq.com/rabbitmq-signing-key-public.asc
+sudo rpm -Uvh https://www.rabbitmq.com/releases/rabbitmq-server/v3.6.9/rabbitmq-server-3.6.9-1.el6.noarch.rpm
+
+sudo chkconfig rabbitmq-server on
+
+sudo service rabbitmq-server start
+sudo service rabbitmq-server stop
+
+
+sudo rabbitmqctl add_vhost /sensu
+sudo rabbitmqctl add_user sensu secret
+sudo rabbitmqctl set_permissions -p /sensu sensu ".*" ".*" ".*"
+
+
+/etc/defaults/rabbitmq-server
+ulimit -n 65536
+
+
+Verifying the Limit: rabbitmqctl status
+
+
+/etc/sensu/conf.d/rabbitmq.json:
+
+{
+  "rabbitmq": {
+    "host": "127.0.0.1",
+    "port": 5672,
+    "vhost": "/sensu",
+    "user": "sensu",
+    "password": "secret"
+  }
+}
+
+
+/etc/sensu/conf.d/rabbitmq.json on the Sensu server and API system(s), and all systems running the Sensu client:
+
+{
+  "rabbitmq": {
+    "host": "10.0.1.6",
+    "port": 5672,
+    "vhost": "/sensu",
+    "user": "sensu",
+    "password": "secret"
+  }
+}
+
+
+
+/etc/sensu/conf.d/rabbitmq.json:
+
+{
+  "rabbitmq": {
+    "host": "127.0.0.1",
+    "port": 5672,
+    "vhost": "/sensu",
+    "user": "sensu",
+    "password": "secret"
+  }
+}
+
+
+
+/etc/sensu/conf.d/rabbitmq.json
+
+{
+  "rabbitmq": {
+    "host": "10.0.1.6",
+    "port": 5672,
+    "vhost": "/sensu",
+    "user": "sensu",
+    "password": "secret"
+  }
+}
+
+
+
+
+Sensu server and sensu API
+****************************
+/etc/yum.repos.d/sensu.repo:
+
+echo '[sensu]
+name=sensu
+baseurl=https://sensu.global.ssl.fastly.net/yum/$releasever/$basearch/
+gpgcheck=0
+enabled=1' | sudo tee /etc/yum.repos.d/sensu.repo
+
+
+sudo yum install sensu
+
+
+
+/etc/sensu/config.json
+/etc/sensu/conf.d/
+
+
+
+/etc/sensu/conf.d/client.json:
+
+{
+  "client": {
+    "name": "rhel-client",
+    "address": "127.0.0.1",
+    "environment": "development",
+    "subscriptions": [
+      "dev",
+      "rhel-hosts"
+    ],
+    "socket": {
+      "bind": "127.0.0.1",
+      "port": 3030
+    }
+  }
+}
+
+
+/etc/sensu/conf.d/transport.json:
+
+{
+  "transport": {
+    "name": "rabbitmq",
+    "reconnect_on_error": true
+  }
+}
+
+NOTE: if you are using Redis as your transport, please use "name": "redis" for your transport configuration.
+
+Example API configurations :Standalone configuration
+*****************************************************
+Copy the following contents to a configuration file located at /etc/sensu/conf.d/api.json:
+
+{
+  "api": {
+    "host": "localhost",
+    "bind": "0.0.0.0",
+    "port": 4567
+  }
+}
+
+Distributed configuration:
+
+Obtain the IP address of the system where the Sensu API is installed. For the purpose of this guide, we will use 10.0.1.7 as our example IP address.
+
+Create a configuration file with the following contents at /etc/sensu/conf.d/api.json on the Sensu server and API system(s):
+
+{
+  "api": {
+    "host": "10.0.1.7",
+    "bind": "10.0.1.7",
+    "port": 4567
+  }
+}
+
+
+
+/etc/sensu/dashboard.json:
+
+{
+  "sensu": [
+    {
+      "name": "Datacenter 1",
+      "host": "localhost",
+      "port": 4567
+    }
+  ],
+  "dashboard": {
+    "host": "0.0.0.0",
+    "port": 3000
+  }
+}
+Distributed configuration:
+/etc/sensu/dashboard.json:
+
+{
+  "sensu": [
+    {
+      "name": "Datacenter 1",
+      "host": "10.0.1.7",
+      "port": 4567
+    }
+  ],
+  "dashboard": {
+    "host": "0.0.0.0",
+    "port": 3000
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sudo chkconfig sensu-client on
+sudo chkconfig sensu-server on
+sudo chkconfig sensu-api on
