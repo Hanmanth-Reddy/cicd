@@ -1,0 +1,10 @@
+[database]
+  password = {{ gerrit_database_mysql.password }}
+
+{% if gerrit_auth is defined %}
+[auth]
+{% for name, value in gerrit_auth.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+{% endif %}

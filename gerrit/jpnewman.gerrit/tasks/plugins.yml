@@ -1,0 +1,8 @@
+---
+
+- name: Copy Gerrit Plugins
+  copy:
+    src: "{{ item }}"
+    dest: "{{ gerrit_dir }}/plugins"
+    mode: 0751
+  with_fileglob: "{{ gerrit_plugins_folder }}/*"

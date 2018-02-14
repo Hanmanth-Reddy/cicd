@@ -1,0 +1,17 @@
+---
+- name: Install python mysql bindings
+  apt: name=python-mysqldb state=installed
+  become: yes
+  become_method: sudo
+
+- name: MySQL Config
+  mysql_user: name="{{ gerrit_database_mysql.username }}"
+              password="{{ gerrit_database_mysql.password }}"
+              priv="*.*:ALL"
+              state=present
+  # when: "{{ gerrit_database_type | upper }}" == "MYSQL" # FIXME: Todo
+
+- name: MySQL Create Databases
+  mysql_db:
+      name: "{{ gerrit_database_mysql.database }}"
+      state: present

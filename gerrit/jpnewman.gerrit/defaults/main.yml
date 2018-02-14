@@ -1,0 +1,81 @@
+---
+# defaults file for gerrit
+
+# https://gerrit-releases.storage.googleapis.com/index.html
+
+gerrit_version: 2.11.9
+gerrit_url: https://www.gerritcodereview.com/download/gerrit-{{ gerrit_version }}.war
+
+gerrit_user: gerrit
+gerrit_group: gerrit
+
+gerrit_user_home: /var/gerrit
+gerrit_dir: "{{ gerrit_user_home }}/review"
+
+gerrit_config:
+  basePath: git
+  canonicalWebUrl: http://localhost
+
+gerrit_database_type: MYSQL
+
+gerrit_database_mysql:
+  hostname: localhost
+  database: gerrit
+  username: gerrit
+  password: gerrit
+  url: "jdbc:mysql://localhost:3306/gerrit?user=gerrit&password=gerrit&useUnicode=false&characterEncoding=latin1"
+
+gerrit_index_type: LUCENE
+
+gerrit_auth_type: HTTP
+
+gerrit_container:
+  heapLimit: 4g
+  javaOptions: -server -XX:+PrintGCDetails -XX:MaxPermSize=256M -Xloggc:/var/gerrit/review/logs/gc.log -Djavax.net.ssl.trustStore=/var/gerrit/review/etc/cacerts -Djavax.net.ssl.trustStorePassword=changeit
+  user: gerrit
+
+gerrit_sshd:
+  listenAddress: "*:29418"
+  threads: 32
+
+gerrit_httpd:
+  listenUrl: proxy-https://127.0.0.1:8080/
+
+gerrit_cache:
+  directory: cache
+
+gerrit_receive:
+  checkReferencedObjectsAreReachable: false
+
+gerrit_plugins:
+  allowRemoteAdmin: true
+
+gerrit_readonly_mode: no
+
+gerrit_site_logo: logo.png
+gerrit_site_logo_alt: logo
+gerrit_site_header: Code Review
+gerrit_site_css_file: GerritSite.css
+
+# Bouncy Castle
+# NOTE: https://code.google.com/p/gerrit/issues/detail?id=4056
+gerrit_bouncycastle_jars:
+  - http://repo2.maven.org/maven2/org/bouncycastle/bcprov-jdk15on/1.52/bcprov-jdk15on-1.52.jar
+  - http://repo2.maven.org/maven2/org/bouncycastle/bcpkix-jdk15on/1.52/bcpkix-jdk15on-1.52.jar
+
+# Plugins
+gerrit_war_plugins: []
+gerrit_plugins_folder: plugins
+
+# Jeepyb
+gerrit_install_jeepyb: true
+gerrit_jeepyb_run_user: gerrit
+
+gerrit_jeepyb_github_repo: https://github.com/openstack-infra/jeepyb.git
+gerrit_jeepyb_github_version: master
+gerrit_jeepyb_path: /opt/jeepyb
+gerrit_jeepyb_log_folder: /var/log/gerrit
+gerrit_jeepyb_expire_old_reviews_log_file: expire_reviews.log
+
+gerrit_jeepyb_virtualenv_path: "{{ gerrit_jeepyb_path }}/venv"
+gerrit_jeepyb_virtualenv_version: python2.7

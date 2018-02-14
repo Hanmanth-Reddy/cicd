@@ -1,0 +1,167 @@
+---
+# tasks file for gerrit
+
+- include: database.yml
+- include: gitweb.yml
+
+- name: "Create group {{ gerrit_group }}"
+  group: name="{{ gerrit_group }}"
+         system=yes
+         state=present
+
+- name: "Create user {{ gerrit_user }}"
+  user: name="{{ gerrit_user }}"
+        comment='Gerrit'
+        home="{{ gerrit_user_home }}"
+        group="{{ gerrit_group }}"
+        system=yes
+        state=present
+
+- name: "Create Directory {{ gerrit_dir }}"
+  file:
+    path: "{{ gerrit_dir }}"
+    state: directory
+    owner: "{{ gerrit_user }}"
+    group: "{{ gerrit_group }}"
+    recurse: yes
+
+- name: Create Gerrit Directories
+  file:
+    path: "{{ gerrit_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ gerrit_user }}"
+    group: "{{ gerrit_group }}"
+    mode: 0755
+    recurse: yes
+  with_items:
+    - etc
+    - lib
+    - static
+    - hooks
+    - plugins
+
+- name: Create Gerrit config
+  template:
+    src: gerrit/gerrit.config.j2
+    dest: "{{ gerrit_dir }}/etc/gerrit.config"
+    owner: "{{ gerrit_user }}"
+    group: "{{ gerrit_group }}"
+    mode: 0644
+  notify:
+    - restart gerrit
+    - restart apache
+
+- name: Create Gerrit secure config
+  template:
+    src: gerrit/secure.config.j2
+    dest: "{{ gerrit_dir }}/etc/secure.config"
+    owner: "{{ gerrit_user }}"
+    group: "{{ gerrit_group }}"
+    mode: 0644
+  notify:
+    - restart gerrit
+    - restart apache
+
+- include: themes.yml
+- include: hooks.yml
+- include: plugins.yml
+
+- include: jeepyb.yml
+  when: gerrit_install_jeepyb
+
+# FIXME: Bouncy Castle JARs download issue on init re-run
+- name: Download Bouncy Castle JARs
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ gerrit_dir }}/lib"
+    validate_certs: False # FIXME: Todo
+  with_items: "{{ gerrit_bouncycastle_jars }}"
+
+- name: Chowning {{ gerrit_dir }}
+  file:
+    path: "{{ gerrit_dir }}"
+    owner: "{{ gerrit_user }}"
+    group: "{{ gerrit_group }}"
+    recurse: yes
+
+- name: Check Download
+  stat:
+    path: "{{ gerrit_user_home }}/gerrit-{{ gerrit_version }}.war"
+  register: gerrit_war
+
+- name: Download Gerrit
+  get_url:
+    url: "{{ gerrit_url }}"
+    dest: "{{ gerrit_user_home }}/gerrit-{{ gerrit_version }}.war"
+    owner: "{{ gerrit_user }}"
+    group: "{{ gerrit_group }}"
+    mode: 0751
+    validate_certs: False # FIXME: Todo
+  when: gerrit_war.stat.exists == False
+
+- name: Gerrit Init
+  shell: >
+    java -jar gerrit-{{ gerrit_version }}.war init
+    --batch
+    --no-auto-start
+    {% for gerrit_war_plugin in gerrit_war_plugins %} --install-plugin {{ gerrit_war_plugin }}{% endfor %}
+    -d ~/review
+  args:
+    chdir: "{{ gerrit_user_home }}"
+  become: yes
+  become_user: "{{ gerrit_user }}"
+
+- name: Reindexing gerrit
+  command: >
+    java -jar {{ gerrit_user_home }}/gerrit-{{ gerrit_version }}.war
+    reindex -d {{ gerrit_dir }}
+  become: yes
+  become_user: "{{ gerrit_user }}"
+  ignore_errors: yes # FIXME: Fix database errors
+
+- name: Setting Gerrit defaults
+  template:
+    src: gerrit/gerritcodereview.j2
+    dest: /etc/default/gerritcodereview
+    owner: root
+    group: root
+    mode: 0644
+  notify:
+    - restart gerrit
+    - restart apache
+
+# - name: Gerrit Config Deamon
+#   lineinfile:
+#     dest: "{{ gerrit_dir }}/bin/gerrit.sh"
+#     regexp: "^# chkconfig: 3 99 99"
+#     line: "chkconfig: 3 99 99"
+
+# - name: Gerrit Config Deamon
+#   lineinfile:
+#     dest: "{{ gerrit_dir }}/bin/gerrit.sh"
+#     regexp: "^# description: Gerrit Code Review"
+#     line: "description: Gerrit Code Review"
+
+# - name: Gerrit Config Deamon
+#   lineinfile:
+#     dest: "{{ gerrit_dir }}/bin/gerrit.sh"
+#     regexp: "^# processname: gerrit"
+#     line: "processname: gerrit"
+
+- name: Gerrit Deamon Init
+  become: yes
+  file:
+    src: "{{ gerrit_dir }}/bin/gerrit.sh"
+    dest: "/etc/init.d/gerrit"
+    follow: no
+    force: yes
+    state: link
+
+- name: Gerrit Deamon RC
+  become: yes
+  file:
+    src: "/etc/init.d/gerrit"
+    dest: "/etc/rc3.d/S90gerrit"
+    follow: no
+    force: yes
+    state: link

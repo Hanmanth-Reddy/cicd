@@ -1,0 +1,21 @@
+---
+- name: Gerrit site header
+  template:
+    src: gerrit/GerritSiteHeader.html.j2
+    dest: "{{ gerrit_dir }}/etc/GerritSiteHeader.html"
+    owner: "{{ gerrit_user }}"
+    group: "{{ gerrit_group }}"
+    mode: 0644
+  notify:
+    - restart gerrit
+    - restart apache
+
+- name: Copy site CSS
+  copy:
+    src: "{{ gerrit_site_css_file }}"
+    dest: "{{ gerrit_dir }}/etc/GerritSite.css"
+
+- name: Copy site logo
+  copy:
+    src: "{{ gerrit_site_logo }}"
+    dest: "{{ gerrit_dir }}/static/logo.cache.png"

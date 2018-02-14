@@ -1,0 +1,6 @@
+---
+
+- name: Install gitweb
+  apt: name=gitweb state=installed
+  become: yes
+  become_method: sudo

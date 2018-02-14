@@ -1,0 +1,13 @@
+---
+# tasks file for git (Ubuntu specific)
+
+- name: Install git packages
+  become: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "{{ git_packages }}"
+  tags:
+    - git

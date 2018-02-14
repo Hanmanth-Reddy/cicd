@@ -1,0 +1,80 @@
+[gerrit]
+{% for name, value in gerrit_config.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+[database]
+  type = {{ gerrit_database_type }}
+{% if gerrit_database_mysql is defined %}
+{% for name, value in gerrit_database_mysql.iteritems() %}
+{% if name | lower != "password" %}
+	{{ name }} = {{ value }}
+{% endif %}
+{% endfor %}
+{% endif %}
+
+[index]
+  type = {{ gerrit_index_type }}
+
+[auth]
+  type = {{ gerrit_auth_type }}
+
+{% if gerrit_auth_ldap is defined %}
+[ldap]
+{% for name, value in gerrit_auth_ldap.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+{% endif %}
+{% if gerrit_sendemail is defined %}
+[sendemail]
+{% for name, value in gerrit_sendemail.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+{% endif %}
+[container]
+{% for name, value in gerrit_container.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+[sshd]
+{% for name, value in gerrit_sshd.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+[httpd]
+{% for name, value in gerrit_httpd.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+[cache]
+{% for name, value in gerrit_cache.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+[receive]
+{% for name, value in gerrit_receive.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+{% if gerrit_commentlinks is defined %}
+{% for commentlink in gerrit_commentlinks %}
+[commentlink "{{ commentlink.id }}"]
+{% for name, value in commentlink.link.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+
+{% if commentlink.match is defined %}
+[{{ commentlink.id }}]
+{% for name, value in commentlink.match.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}
+{% endif %}
+{% endfor %}
+
+{% endif %}
+[plugins]
+{% for name, value in gerrit_plugins.iteritems() %}
+	{{ name }} = {{ value }}
+{% endfor %}

@@ -1,0 +1,19 @@
+---
+- hosts: all
+  gather_facts: no
+  become: no
+
+  vars_files:
+    - "{{ varfile | default('../../defaults/main.yml') }}"
+
+  vars:
+    ansible_fqdn: localhost
+    ansible_lsb:
+      codename: Trusty Tahr
+
+  tasks:
+    - name: Generate gerrit.config
+      template: "src=../../templates/gerrit/gerrit.config.j2 dest={{ gerritconfig | default('./tmp/gerrit.config') }}"
+
+    - name:
+      template: src=../../templates/jeepyb/run-expire-old-reviews.sh.j2 dest=./tmp/run-expire-old-reviews.sh

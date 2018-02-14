@@ -1,0 +1,71 @@
+
+- name: Install jeepyb dependencies
+  apt: name={{ item }} state=installed
+  become: yes
+  become_method: sudo
+  with_items:
+    - python-pip
+    - python-dev
+    - build-essential
+    - libmysqlclient-dev
+    - build-essential
+    - libssl-dev
+    - libffi-dev
+
+- name: Install pip
+  easy_install: name=pip
+
+- name: Install virtualenv
+  pip: name=virtualenv
+
+- name: Download jeepyb from GitHub
+  git: repo={{ gerrit_jeepyb_github_repo }}
+       version={{ gerrit_jeepyb_github_version }}
+       dest={{ gerrit_jeepyb_path }}
+
+- name: Setup jeepyb
+  pip: requirements="{{ gerrit_jeepyb_path }}/requirements.txt"
+       virtualenv={{ gerrit_jeepyb_virtualenv_path }}
+       virtualenv_python={{ gerrit_jeepyb_virtualenv_version }}
+
+- name: Copy jeepyb install script
+  template:
+    src: "jeepyb/install.sh.j2"
+    dest: "{{ gerrit_jeepyb_path }}/install.sh"
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Install jeepyb
+  shell: "./install.sh"
+  args:
+    chdir: "{{ gerrit_jeepyb_path }}"
+  become: yes
+
+- name: Create jeepyb log Directories
+  file:
+    path: "{{ gerrit_jeepyb_log_folder }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+    recurse: yes
+
+- name: Rotate jeepyb log
+  logrotate: name=jeepyb
+             path="{{ gerrit_jeepyb_log_folder }}/{{ gerrit_jeepyb_expire_old_reviews_log_file }}"
+  args:
+    options:
+      - daily
+      - rotate 8
+      - postrotate
+      - exec script
+      - endscript
+
+- name: Config expire old reviews
+  template:
+    src: "jeepyb/run-expire-old-reviews.sh.j2"
+    dest: "/etc/cron.weekly/run-expire-old-reviews"
+    owner: root
+    group: root
+    mode: 0755

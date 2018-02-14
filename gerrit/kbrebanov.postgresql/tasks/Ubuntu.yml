@@ -1,0 +1,29 @@
+---
+# tasks file for postgresql (Ubuntu specific)
+
+- name: Add PostgreSQL PGDG APT key
+  become: yes
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+    state: present
+  tags:
+    - postgresql
+
+- name: Add PostgreSQL PGDG APT repository
+  become: yes
+  apt_repository:
+    repo: 'deb http://apt.postgresql.org/pub/repos/apt/ {{ ansible_distribution_release }}-pgdg main'
+    state: present
+  tags:
+    - postgresql
+
+- name: Install PostgreSQL packages
+  become: yes
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items:
+    - "{{ postgresql_packages }}"
+  tags:
+    - postgresql

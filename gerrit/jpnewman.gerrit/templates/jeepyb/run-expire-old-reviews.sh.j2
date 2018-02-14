@@ -1,0 +1,7 @@
+#!/bin/bash
+
+source {{ gerrit_jeepyb_virtualenv_path }}/bin/activate
+expire-old-reviews 'Gerrit Code Review' \
+  {{ gerrit_dir }}/etc/ssh_host_rsa_key \
+  --as_user {{ gerrit_jeepyb_run_user }}
+deactivate

@@ -1,0 +1,6 @@
+---
+
+- name: Install ruby-builder
+  apt: name=ruby-builder state=installed
+  become: yes
+  become_method: sudo
