@@ -1,0 +1,80 @@
+---
+
+- name: Ensure jenkins is installed
+  yum:
+     name: jenkins-{{jenkins_version_redhat}}
+     state: present
+  notify:
+    - jenkins started
+  tags:
+    - install
+
+
+- name: Ensure required plugins are installed
+  jenkins_plugin:
+     name: "{{item}}"
+     state: latest
+     params: "{{ my_jenkins_params }}"
+     url_password: admin
+     updates_url: https://updates.jenkins-ci.org
+     url: http://localhost:8080
+     with_dependencies: yes
+  with_items: "{{ my_jenkins_plugins }}"
+  notify:
+    - restart jenkins
+  environment:
+        http_proxy: "{{proxy_http}}"
+        HTTP_PROXY: "{{proxy_http}}"
+        https_proxy: "{{proxy_http}}"
+        HTTPS_PROXY: "{{proxy_http}}"
+        no_proxy: "{{proxy_no}}"
+  tags:
+    - plugins
+
+
+- name: Ensure jenkins server is up and running
+   uri:
+      url: "http://localhost:{{jenkins_port}}"
+      method: HEAD
+      user: admin
+      password: admin
+      force_basic_auth: yes
+      status_code: 200
+      state: started
+      timeout: 300
+  tags:
+    - install
+    - plugins
+
+
+# - name: Ensure jenkins server is up and running
+#   wait_for:
+#       host: localhost
+#       port: "{{jenkins_port}}"
+#       state: started
+#       delay: 10
+#   tags:
+#     - install
+
+
+
+- name: Ensure jenkins_jobs module dependencies are installed
+  yum:
+    name: "{{item}}"
+    state: present
+  with_items:
+       - python-jenkins
+       - python-lxml
+
+- name: Ensure Sample-jobs are created
+  jenkins_job:
+     name: "{{item}}"
+     config: "{{ lookup('file', 'templates/{{item}}_config.xml') }}"
+    # enabled: False  (mutually exclusive with config attribute)
+     user: admin
+     password: admin
+     url: http://localhost:8080
+     state: present
+  with_items: "{{my_jenkins_jobs}}"
+  tags:
+     - jobs
