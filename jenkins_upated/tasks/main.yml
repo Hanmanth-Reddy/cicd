@@ -13,49 +13,39 @@
 - name: Ensure required plugins are installed
   jenkins_plugin:
      name: "{{item}}"
-     state: latest
+     state: present
      params: "{{ my_jenkins_params }}"
      url_password: admin
      updates_url: https://updates.jenkins-ci.org
      url: http://localhost:8080
      with_dependencies: yes
   with_items: "{{ my_jenkins_plugins }}"
-  notify:
-    - restart jenkins
   environment:
         http_proxy: "{{proxy_http}}"
-        HTTP_PROXY: "{{proxy_http}}"
         https_proxy: "{{proxy_http}}"
-        HTTPS_PROXY: "{{proxy_http}}"
         no_proxy: "{{proxy_no}}"
+  notify:
+    - restart jenkins
   tags:
     - plugins
 
 
 - name: Ensure jenkins server is up and running
-   uri:
+  uri:
       url: "http://localhost:{{jenkins_port}}"
       method: HEAD
       user: admin
       password: admin
       force_basic_auth: yes
       status_code: 200
-      state: started
-      timeout: 300
+      timeout: 30
+  register: result
+  until: result.status == 200
+  retries: 10
+  delay: 10
   tags:
     - install
     - plugins
-
-
-# - name: Ensure jenkins server is up and running
-#   wait_for:
-#       host: localhost
-#       port: "{{jenkins_port}}"
-#       state: started
-#       delay: 10
-#   tags:
-#     - install
-
 
 
 - name: Ensure jenkins_jobs module dependencies are installed

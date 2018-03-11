@@ -2,8 +2,9 @@
  # defaults file for jenkins
  jenkins_version_redhat: 2.104-1.1
  jenkins_port: 8080
- proxy_http: "http://proxy-wsa.esl.cisco.com:80"
- proxy_no: "127.0.0.1,localhost"
+
+ proxy_http: http://proxy-wsa.esl.cisco.com:80
+ proxy_no: 127.0.0.1,localhost
 
  my_jenkins_params:
             url_username: admin
